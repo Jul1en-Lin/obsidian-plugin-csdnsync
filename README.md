@@ -59,11 +59,13 @@ In the extension popup:
 
 If your default browser is not Chrome, copy the trigger page URL into the Chrome profile where the extension is installed.
 
+Local Obsidian images referenced by Markdown or wiki embeds are uploaded to CSDN before the editor is filled, then the Markdown image URLs are replaced with CSDN image URLs.
+
 ## Current limits
 
 - Only the current active Markdown note is synced.
 - The extension does not auto-save. CSDN draft creation happens only when the user selects **保存草稿**.
-- Local images are not uploaded to CSDN yet.
+- Remote web images are not downloaded and re-uploaded yet.
 - Tags, categories, cover images, and publishing are not included.
 - Desktop Obsidian only.
 

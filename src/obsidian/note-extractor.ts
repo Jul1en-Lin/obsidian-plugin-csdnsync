@@ -1,5 +1,6 @@
 import { App, TFile } from 'obsidian';
 import type { SyncTaskInput } from '../types';
+import { prepareMarkdownImages } from './images';
 import { extractTitle } from './title';
 
 export async function extractActiveNote(app: App): Promise<SyncTaskInput> {
@@ -10,10 +11,12 @@ export async function extractActiveNote(app: App): Promise<SyncTaskInput> {
 
 	const markdown = await app.vault.read(file);
 	const title = extractTitle(markdown, file.path);
+	const prepared = await prepareMarkdownImages(app, file, markdown);
 
 	return {
 		title,
-		markdown,
+		markdown: prepared.markdown,
+		images: prepared.images,
 		sourcePath: file.path,
 	};
 }

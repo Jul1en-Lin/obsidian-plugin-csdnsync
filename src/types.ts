@@ -1,7 +1,18 @@
 export interface SyncTaskInput {
 	title: string;
 	markdown: string;
+	images?: SyncImageAsset[];
 	sourcePath: string;
+}
+
+export interface SyncImageAsset {
+	id: string;
+	placeholderSrc: string;
+	originalSrc: string;
+	sourcePath: string;
+	filename: string;
+	mimeType: string;
+	dataBase64: string;
 }
 
 export interface SyncTask extends SyncTaskInput {
