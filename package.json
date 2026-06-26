@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-csdn-sync",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"description": "Open the current Obsidian note in the CSDN Markdown editor through a local Chrome extension bridge.",
 	"main": "main.js",
 	"type": "module",

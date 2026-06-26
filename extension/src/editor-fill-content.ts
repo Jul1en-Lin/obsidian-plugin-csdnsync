@@ -5,7 +5,6 @@ import { uploadCsdnImage } from './csdn/image-upload';
 
 const TASK_QUERY_PARAM = 'csdnSyncTaskId';
 const WINDOW_NAME_PREFIX = 'csdn-sync:';
-const TITLE_INPUT_VISIBLE_CLASS = 'csdn-sync-title-input-visible';
 const BANNER_CLASS = 'csdn-sync-banner';
 const taskId = readEditorTaskId(window.location.href, window.name);
 
@@ -62,7 +61,7 @@ function fillTitle(title: string): void {
 
 	if (titleInput) {
 		titleInput.removeAttribute('aria-hidden');
-		titleInput.classList.add(TITLE_INPUT_VISIBLE_CLASS);
+		titleInput.removeAttribute('style');
 		titleInput.focus();
 		setNativeInputValue(titleInput, title);
 		dispatchInputEvents(titleInput);
