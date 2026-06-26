@@ -48,9 +48,11 @@ Status: Demo implementation completed; editor-fill mode built and copied into th
 - Updated editor fill to dispatch a `paste` event with `text/plain` Markdown first, falling back to `insertText` only if CSDN does not handle paste.
 - User found that syncing multiple notes close together could reuse the same CSDN editor state: the second note appended to the first note's body and overwrote the title.
 - Added a per-task CSDN editor window handle and clear-before-fill behavior so each trigger/editor tab resolves its own task and removes any previous unsaved editor content before inserting Markdown.
+- User found the CSDN title display text and title input could appear together, making the title look duplicated.
+- Fixed title fill so the display layer is cleared while the input layer is active.
 
 ## Next actions
 
-1. Reload the Chrome unpacked extension from `extension/dist` and confirm version `0.1.2`.
+1. Reload the Chrome unpacked extension from `extension/dist` and confirm version `0.1.3`.
 2. Run sync from two different Obsidian windows.
 3. Confirm each CSDN editor tab gets only its own title/body and still does not auto-save.

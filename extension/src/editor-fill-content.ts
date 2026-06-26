@@ -1,4 +1,5 @@
 import type { SyncTask } from './types';
+import { hideTitleDisplayWhileInputIsActive } from './csdn/title-fill';
 
 const TASK_QUERY_PARAM = 'csdnSyncTaskId';
 const WINDOW_NAME_PREFIX = 'csdn-sync:';
@@ -57,6 +58,8 @@ function fillTitle(title: string): void {
 		setNativeInputValue(titleInput, title);
 		dispatchInputEvents(titleInput);
 		titleInput.blur();
+		hideTitleDisplayWhileInputIsActive(titleDisplay);
+		return;
 	}
 
 	if (titleDisplay) {
