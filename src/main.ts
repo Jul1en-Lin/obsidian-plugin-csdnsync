@@ -1,114 +1,102 @@
+import { Notice, Plugin } from 'obsidian';
+import { registerCommands } from './commands/register-commands';
+import { extractActiveNote } from './obsidian/note-extractor';
+import { LocalServer } from './server/local-server';
+import { createTaskStore, type TaskStore } from './server/task-store';
 import {
-	Editor,
-	MarkdownView,
-	MarkdownFileInfo,
-	Modal,
-	Notice,
-	Plugin,
-} from 'obsidian';
-import {
-	DEFAULT_SETTINGS,
-	MyPluginSettings,
-	SampleSettingTab,
+	CsdnSyncSettingTab,
+	normalizeSettings,
 } from './settings';
+import type { CsdnSyncSettings, SyncTask, SyncTaskResult } from './types';
 
-// Remember to rename these classes and interfaces!
+export default class CsdnSyncPlugin extends Plugin {
+	settings!: CsdnSyncSettings;
+	private localServer: LocalServer | null = null;
+	private taskStore!: TaskStore;
 
-export default class MyPlugin extends Plugin {
-	settings!: MyPluginSettings;
-
-	async onload() {
+	async onload(): Promise<void> {
 		await this.loadSettings();
+		this.taskStore = createTaskStore();
 
-		// This creates an icon in the left ribbon.
-		this.addRibbonIcon('dice', 'Sample', (_evt: MouseEvent) => {
-			// Called when the user clicks the icon.
-			new Notice('This is a notice!');
+		this.addRibbonIcon('upload-cloud', 'Sync current note to csdn draft', () => {
+			void this.startSyncCurrentNote();
 		});
+		registerCommands(this);
+		this.addSettingTab(new CsdnSyncSettingTab(this.app, this));
 
-		// This adds a status bar item to the bottom of the app. Does not work on mobile apps.
-		const statusBarItemEl = this.addStatusBarItem();
-		statusBarItemEl.setText('Status bar text');
-
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-modal-simple',
-			name: 'Open modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			},
-		});
-		// This adds an editor command that can perform some operation on the current editor instance
-		this.addCommand({
-			id: 'replace-selected',
-			name: 'Replace selected content',
-			editorCallback: (
-				editor: Editor,
-				_ctx: MarkdownView | MarkdownFileInfo,
-			) => {
-				editor.replaceSelection('Sample editor command');
-			},
-		});
-		// This adds a complex command that can check whether the current state of the app allows execution of the command
-		this.addCommand({
-			id: 'open-modal-complex',
-			name: 'Open modal (complex)',
-			checkCallback: (checking: boolean) => {
-				// Conditions to check
-				const markdownView =
-					this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-
-					// This command will only show up in Command Palette when the check function returns true
-					return true;
-				}
-				return false;
-			},
-		});
-
-		// This adds a settings tab so the user can configure various aspects of the plugin
-		this.addSettingTab(new SampleSettingTab(this.app, this));
-
-		// If the plugin hooks up any global DOM events (on parts of the app that doesn't belong to this plugin)
-		// Using this function will automatically remove the event listener when this plugin is disabled.
-		this.registerDomEvent(activeDocument, 'click', (_evt: MouseEvent) => {
-			new Notice('Click');
-		});
-
-		// When registering intervals, this function will automatically clear the interval when the plugin is disabled.
-		this.registerInterval(
-			window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000),
-		);
+		await this.restartLocalServer();
 	}
 
-	onunload() {}
-
-	async loadSettings() {
-		this.settings = Object.assign(
-			{},
-			DEFAULT_SETTINGS,
-			(await this.loadData()) as Partial<MyPluginSettings>,
-		);
+	onunload(): void {
+		void this.localServer?.stop();
+		this.localServer = null;
 	}
 
-	async saveSettings() {
+	async loadSettings(): Promise<void> {
+		this.settings = normalizeSettings(
+			(await this.loadData()) as Partial<CsdnSyncSettings> | null,
+		);
+		await this.saveSettings();
+	}
+
+	async saveSettings(): Promise<void> {
 		await this.saveData(this.settings);
 	}
-}
 
-class SampleModal extends Modal {
-	onOpen() {
-		const { contentEl } = this;
-		contentEl.setText('Woah!');
+	async restartLocalServer(): Promise<void> {
+		await this.localServer?.stop();
+		this.localServer = null;
+
+		if (!this.settings.serverEnabled) {
+			return;
+		}
+
+		this.localServer = new LocalServer({
+			getToken: () => this.settings.token,
+			taskStore: this.taskStore,
+			onResult: (_taskId, result) => this.showResult(result),
+		});
+
+		try {
+			await this.localServer.start(this.settings.port);
+		} catch (error) {
+			this.localServer = null;
+			new Notice(
+				`CSDN Sync server failed on port ${this.settings.port}: ${
+					error instanceof Error ? error.message : String(error)
+				}`,
+			);
+		}
 	}
 
-	onClose() {
-		const { contentEl } = this;
-		contentEl.empty();
+	async createSyncTask(): Promise<SyncTask> {
+		const input = await extractActiveNote(this.app);
+		return this.taskStore.create(input);
+	}
+
+	async startSyncCurrentNote(): Promise<void> {
+		try {
+			const task = await this.createSyncTask();
+			const url = this.getTriggerUrl(task.id);
+			window.open(url, '_blank');
+			new Notice('Draft sync task created. Continue in chrome.');
+		} catch (error) {
+			new Notice(error instanceof Error ? error.message : String(error));
+		}
+	}
+
+	getTriggerUrl(taskId: string): string {
+		return `http://127.0.0.1:${this.settings.port}/trigger?taskId=${encodeURIComponent(
+			taskId,
+		)}`;
+	}
+
+	private showResult(result: SyncTaskResult): void {
+		if (result.status === 'success') {
+			new Notice(`CSDN draft saved: ${result.postUrl}`, 10000);
+			return;
+		}
+
+		new Notice(`CSDN sync failed: ${result.error}`, 10000);
 	}
 }

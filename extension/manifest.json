@@ -1,0 +1,31 @@
+{
+	"manifest_version": 3,
+	"name": "CSDN Sync Demo",
+	"description": "Sync Obsidian notes to CSDN drafts through the browser login state.",
+	"version": "0.1.0",
+	"permissions": [
+		"storage",
+		"declarativeNetRequest",
+		"declarativeNetRequestWithHostAccess"
+	],
+	"host_permissions": [
+		"http://127.0.0.1/*",
+		"https://bizapi.csdn.net/*",
+		"https://editor.csdn.net/*"
+	],
+	"background": {
+		"service_worker": "background.js",
+		"type": "module"
+	},
+	"content_scripts": [
+		{
+			"matches": ["http://127.0.0.1/*"],
+			"js": ["trigger-content.js"],
+			"run_at": "document_idle"
+		}
+	],
+	"action": {
+		"default_title": "CSDN Sync",
+		"default_popup": "popup.html"
+	}
+}
