@@ -5,6 +5,9 @@ import { uploadCsdnImage } from './csdn/image-upload';
 
 const TASK_QUERY_PARAM = 'csdnSyncTaskId';
 const WINDOW_NAME_PREFIX = 'csdn-sync:';
+const STYLE_ELEMENT_ID = 'csdn-sync-editor-fill-style';
+const TITLE_INPUT_VISIBLE_CLASS = 'csdn-sync-title-input-visible';
+const BANNER_CLASS = 'csdn-sync-banner';
 const taskId = readEditorTaskId(window.location.href, window.name);
 
 if (window.location.hostname === 'editor.csdn.net' && taskId) {
@@ -59,8 +62,9 @@ function fillTitle(title: string): void {
 	titleDisplay?.click();
 
 	if (titleInput) {
+		ensureCsdnSyncStyles();
 		titleInput.removeAttribute('aria-hidden');
-		titleInput.style.display = '';
+		titleInput.classList.add(TITLE_INPUT_VISIBLE_CLASS);
 		titleInput.focus();
 		setNativeInputValue(titleInput, title);
 		dispatchInputEvents(titleInput);
@@ -213,23 +217,52 @@ function createSuccessMessage(imageResult: {
 }
 
 function showBanner(message: string, type: 'success' | 'error'): void {
+	ensureCsdnSyncStyles();
 	const banner = document.createElement('div');
 	banner.textContent = message;
-	banner.style.position = 'fixed';
-	banner.style.top = '72px';
-	banner.style.right = '24px';
-	banner.style.zIndex = '2147483647';
-	banner.style.maxWidth = '360px';
-	banner.style.padding = '10px 12px';
-	banner.style.borderRadius = '6px';
-	banner.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.18)';
-	banner.style.fontSize = '13px';
-	banner.style.lineHeight = '1.4';
-	banner.style.color = type === 'success' ? '#14532d' : '#7f1d1d';
-	banner.style.background = type === 'success' ? '#dcfce7' : '#fee2e2';
-	banner.style.border = `1px solid ${type === 'success' ? '#86efac' : '#fecaca'}`;
+	banner.className = `${BANNER_CLASS} ${BANNER_CLASS}--${type}`;
 	document.body.appendChild(banner);
 	window.setTimeout(() => banner.remove(), 8000);
+}
+
+function ensureCsdnSyncStyles(): void {
+	if (document.getElementById(STYLE_ELEMENT_ID)) {
+		return;
+	}
+
+	const styleElement = document.createElement('style');
+	styleElement.id = STYLE_ELEMENT_ID;
+	styleElement.textContent = `
+.${TITLE_INPUT_VISIBLE_CLASS} {
+	display: inline-block !important;
+}
+
+.${BANNER_CLASS} {
+	position: fixed;
+	top: 72px;
+	right: 24px;
+	z-index: 2147483647;
+	max-width: 360px;
+	padding: 10px 12px;
+	border-radius: 6px;
+	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+	font-size: 13px;
+	line-height: 1.4;
+}
+
+.${BANNER_CLASS}--success {
+	color: #14532d;
+	background: #dcfce7;
+	border: 1px solid #86efac;
+}
+
+.${BANNER_CLASS}--error {
+	color: #7f1d1d;
+	background: #fee2e2;
+	border: 1px solid #fecaca;
+}
+`;
+	document.documentElement.appendChild(styleElement);
 }
 
 function sendRuntimeMessage<TResponse>(
