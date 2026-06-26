@@ -4,7 +4,7 @@
 
 Goal: Prepare the plugin for Obsidian community directory submission and attempt the initial listing.
 
-Status: Obsidian listing materials are merged into `master`; GitHub release `1.0.0` is published.
+Status: Obsidian listing materials are merged into `master`; GitHub release `1.0.0` is published; community submission is blocked by GitHub account linking.
 
 ## Done
 
@@ -30,14 +30,15 @@ Status: Obsidian listing materials are merged into `master`; GitHub release `1.0
 - Updated `manifest.json` description and `authorUrl`.
 - Merged `feat/obsidian-store-readiness` into `master` using `--no-ff`.
 - Pushed `master` to GitHub and published release `1.0.0` with `main.js` and `manifest.json`.
+- Attempted the Obsidian community directory submission form.
 
 ## In progress
 
-- Attempting the Obsidian community directory submission.
+- Waiting for the user to connect GitHub on the Obsidian Community site, then resubmit the plugin.
 
 ## Blocked / Questions
 
-- Actual Obsidian community submission requires signing in at `https://community.obsidian.md` with an Obsidian account and linking the owning GitHub account.
+- Obsidian Community returned: `You do not own this repository. Connect your GitHub account and ensure the repo owner matches your username or an organization you administer.`
 
 ## Checkpoints
 
@@ -70,8 +71,10 @@ Status: Obsidian listing materials are merged into `master`; GitHub release `1.0
 - Source branch pre-merge checks passed after confirming `origin/master` was already up to date: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
 - Merged `feat/obsidian-store-readiness` into `master` with `--no-ff`; post-merge checks passed: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
 - GitHub release `1.0.0` is published and contains `main.js` and `manifest.json`.
+- Community submission attempt reached `/account/plugins/new`; form submission failed because the Obsidian Community account has not connected the owning GitHub account.
 
 ## Next actions
 
-1. Commit and push the release status note.
-2. Submit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync` at `https://community.obsidian.md`.
+1. In the open Obsidian Community tab, connect GitHub from **Plugins -> Connect GitHub**.
+2. Resubmit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync` from **Plugins -> New plugin**.
+3. Review automated feedback and publish a new release if Obsidian reports required fixes.

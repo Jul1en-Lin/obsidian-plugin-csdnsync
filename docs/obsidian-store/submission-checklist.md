@@ -30,7 +30,7 @@ Source: Obsidian docs, "Submit your plugin", checked on 2026-06-27.
 
 ## Community directory submission
 
-- [ ] Sign in at `https://community.obsidian.md`.
+- [x] Sign in at `https://community.obsidian.md`.
 - [ ] Link the GitHub account that owns `Jul1en-Lin/obsidian-plugin-csdnsync`.
 - [ ] Select **Plugins -> New plugin**.
 - [ ] Submit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync`.
@@ -42,3 +42,4 @@ Source: Obsidian docs, "Submit your plugin", checked on 2026-06-27.
 - Obsidian reads `manifest.json` and `README.md` from the default branch, and installs plugin files from the GitHub release whose tag matches `manifest.json` `version`.
 - Local package check passed: `release/csdn-sync-1.0.0.zip` contains `main.js` and `manifest.json`.
 - GitHub release is published at `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync/releases/tag/1.0.0` with `main.js` and `manifest.json`.
+- Submission attempt reached the New plugin form, but Obsidian returned: `You do not own this repository. Connect your GitHub account and ensure the repo owner matches your username or an organization you administer.`
