@@ -4,7 +4,7 @@
 
 Goal: Design a demo that syncs the current Obsidian note to a CSDN draft through a Chrome extension using the browser's existing CSDN login state.
 
-Status: Demo implementation completed; editor-fill mode built and copied into the test vault.
+Status: Demo implementation completed; editor-fill mode with local image upload is verified manually and merged back to `dev`.
 
 ## Done
 
@@ -25,7 +25,7 @@ Status: Demo implementation completed; editor-fill mode built and copied into th
 
 ## In progress
 
-- Manual verification after reloading the Obsidian plugin and Chrome unpacked extension.
+- None right now.
 
 ## Blocked / Questions
 
@@ -50,9 +50,13 @@ Status: Demo implementation completed; editor-fill mode built and copied into th
 - Added a per-task CSDN editor window handle and clear-before-fill behavior so each trigger/editor tab resolves its own task and removes any previous unsaved editor content before inserting Markdown.
 - User found the CSDN title display text and title input could appear together, making the title look duplicated.
 - Fixed title fill so the display layer is cleared while the input layer is active.
+- Created `feat/csdn-image-upload` to fix CSDN image transfer failures.
+- Added local Obsidian image extraction: Markdown images and wiki embeds are replaced with internal placeholders and binary image assets are attached to the sync task.
+- Added CSDN image upload in the editor content script: local images are uploaded to CSDN image storage before filling Markdown.
+- Rebuilt and copied updated Obsidian plugin artifacts into `/Users/lien/Obsidian-data/☘️/.obsidian/plugins/csdn-sync/`.
+- User confirmed the CSDN editor now fills notes with uploaded images successfully.
 
 ## Next actions
 
-1. Reload the Chrome unpacked extension from `extension/dist` and confirm version `0.1.3`.
-2. Run sync from two different Obsidian windows.
-3. Confirm each CSDN editor tab gets only its own title/body and still does not auto-save.
+1. Push `dev` only if the user asks for remote publishing.
+2. Continue future work from `dev`.

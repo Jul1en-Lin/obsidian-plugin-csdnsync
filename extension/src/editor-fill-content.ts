@@ -1,5 +1,7 @@
 import type { SyncTask } from './types';
 import { hideTitleDisplayWhileInputIsActive } from './csdn/title-fill';
+import { uploadAndReplaceTaskImages } from './csdn/image-markdown';
+import { uploadCsdnImage } from './csdn/image-upload';
 
 const TASK_QUERY_PARAM = 'csdnSyncTaskId';
 const WINDOW_NAME_PREFIX = 'csdn-sync:';
@@ -26,10 +28,15 @@ async function fillFromPendingTask(taskId: string): Promise<void> {
 		}
 
 		await waitForEditor();
+		const imageResult = await uploadAndReplaceTaskImages(
+			response.task.markdown,
+			response.task.images,
+			uploadCsdnImage,
+		);
 		fillTitle(response.task.title);
-		fillMarkdown(response.task.markdown);
+		fillMarkdown(imageResult.markdown);
 		await sendRuntimeMessage({ type: 'CLEAR_PENDING_EDITOR_TASK', taskId });
-		showBanner('CSDN Sync filled this page. Save the draft manually.', 'success');
+		showBanner(createSuccessMessage(imageResult), 'success');
 	} catch (error) {
 		showBanner(error instanceof Error ? error.message : String(error), 'error');
 	}
@@ -189,6 +196,20 @@ function setNativeInputValue(input: HTMLInputElement, value: string): void {
 function dispatchInputEvents(element: HTMLElement): void {
 	element.dispatchEvent(new InputEvent('input', { bubbles: true }));
 	element.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+function createSuccessMessage(imageResult: {
+	uploaded: number;
+	failed: number;
+}): string {
+	const parts = ['CSDN Sync filled this page. Save the draft manually.'];
+	if (imageResult.uploaded > 0) {
+		parts.push(`Uploaded ${imageResult.uploaded} image(s).`);
+	}
+	if (imageResult.failed > 0) {
+		parts.push(`${imageResult.failed} image upload(s) failed.`);
+	}
+	return parts.join(' ');
 }
 
 function showBanner(message: string, type: 'success' | 'error'): void {

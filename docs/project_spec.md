@@ -14,8 +14,9 @@
 6. Chrome 扩展 content script 识别 trigger 页面，通知扩展后台。
 7. Chrome 扩展后台读取任务，暂存待填充内容，并返回 CSDN 编辑器 URL。
 8. trigger 页面跳转到 CSDN Markdown 编辑器。
-9. CSDN 编辑器 content script 填充标题和 Markdown 正文。
-10. Obsidian 收到 `manual-fill` 结果后提示用户在 CSDN 页面手动保存。
+9. CSDN 编辑器 content script 上传本地图片附件，把 Markdown 图片地址替换为 CSDN 图片地址。
+10. CSDN 编辑器 content script 填充标题和 Markdown 正文。
+11. Obsidian 收到 `manual-fill` 结果后提示用户在 CSDN 页面手动保存。
 
 ## Architecture
 
@@ -29,7 +30,8 @@ Obsidian plugin
 Chrome extension
   - trigger content script
   - task loader
-  - pending editor task store
+- pending editor task store
+- CSDN image upload helper
   - CSDN editor fill content script
   - result reporter
 
@@ -210,7 +212,9 @@ Defaults:
 5. Extension background stores the task in Chrome local storage under a pending editor task key.
 6. Extension background posts `{ status: "manual-fill", postUrl }` to Obsidian.
 7. Trigger page navigates to the CSDN editor URL with `csdnSyncTaskId`.
-8. CSDN editor content script loads the pending task, fills title and Markdown body, clears the pending task, and shows an in-page notice.
+8. CSDN editor content script loads the pending task.
+9. Local Obsidian images are uploaded to CSDN image storage and placeholder image URLs are replaced.
+10. The content script fills title and Markdown body, clears the pending task, and shows an in-page notice.
 
 Popup can also expose a manual **Check connection** action for setup/debug.
 
@@ -222,7 +226,9 @@ Editor fill behavior:
 
 - Open `https://editor.csdn.net/md/?csdnSyncTaskId=<taskId>`.
 - Fill title from the Obsidian task title.
-- Fill Markdown body from the Obsidian task Markdown.
+- Upload local Obsidian image attachments referenced by Markdown image syntax or wiki embeds.
+- Replace uploaded local image references with CSDN image URLs.
+- Fill Markdown body from the prepared Obsidian task Markdown.
 - Show an in-page notice telling the user to select **保存草稿** or **发布文章** manually.
 - Clear pending task content from Chrome local storage after a successful fill.
 
@@ -241,6 +247,7 @@ Editor fill behavior:
 - Token rejected: show setup error in popup.
 - CSDN not logged in: CSDN editor page handles login; the extension should show a visible fill failure if editor controls never appear.
 - CSDN editor DOM changed: show a visible fill failure in the editor page.
+- CSDN image upload failure: keep the original image source and show the upload failure count in the editor notice.
 
 ## Testing plan
 
@@ -251,6 +258,8 @@ Editor fill behavior:
 - Task queue state changes.
 - CSDN editor URL task id round trip.
 - Pending editor task store behavior.
+- Obsidian local image extraction and placeholder replacement.
+- CSDN image placeholder replacement and upload signing.
 
 ### Manual demo check
 
@@ -282,7 +291,7 @@ Editor fill behavior:
 
 ## Deferred work
 
-- CSDN image upload.
+- Remote web image download/re-upload.
 - Frontmatter to tags/categories mapping.
 - Optional API-based draft save behind explicit user opt-in.
 - Better task history in Obsidian.
