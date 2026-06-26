@@ -4,7 +4,7 @@
 
 Goal: Prepare the plugin for Obsidian community directory submission and attempt the initial listing.
 
-Status: Obsidian listing materials are merged into `master`; GitHub release `1.0.0` is published; community submission is blocked by GitHub account linking.
+Status: Obsidian Community entry is live; GitHub release `1.0.3` is published; automated review completed with no Error; manual review request is submitted.
 
 ## Done
 
@@ -31,14 +31,20 @@ Status: Obsidian listing materials are merged into `master`; GitHub release `1.0
 - Merged `feat/obsidian-store-readiness` into `master` using `--no-ff`.
 - Pushed `master` to GitHub and published release `1.0.0` with `main.js` and `manifest.json`.
 - Attempted the Obsidian community directory submission form.
+- User connected the owning GitHub account on Obsidian Community.
+- Submitted and published the `CSDN Sync` community entry.
+- Published follow-up releases `1.0.1`, `1.0.2`, and `1.0.3` to address Obsidian automated review findings.
+- Obsidian Community now lists current release `1.0.3`; automated review completed without Error.
+- Submitted a manual review request explaining that remaining source-code warnings are from the companion Chrome extension source or the documented token-copy clipboard command.
 
 ## In progress
 
-- Waiting for the user to connect GitHub on the Obsidian Community site, then resubmit the plugin.
+- Waiting for Obsidian manual review feedback on the live community entry.
 
 ## Blocked / Questions
 
-- Obsidian Community returned: `You do not own this repository. Connect your GitHub account and ensure the repo owner matches your username or an organization you administer.`
+- None right now.
+- Non-blocking review warnings remain because Obsidian scans the whole repository, including `extension/`. Fix only if Obsidian maintainers require it.
 
 ## Checkpoints
 
@@ -72,9 +78,16 @@ Status: Obsidian listing materials are merged into `master`; GitHub release `1.0
 - Merged `feat/obsidian-store-readiness` into `master` with `--no-ff`; post-merge checks passed: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
 - GitHub release `1.0.0` is published and contains `main.js` and `manifest.json`.
 - Community submission attempt reached `/account/plugins/new`; form submission failed because the Obsidian Community account has not connected the owning GitHub account.
+- Release `1.0.0` automated review failed on direct style assignment.
+- Release `1.0.1` preview failed because the Chrome extension content script created a `<style>` element.
+- Release `1.0.2` review completed without Error after moving extension styles into a CSS file.
+- Release `1.0.3` review completed without Error after removing the remaining CSS warning.
+- GitHub release `1.0.3` is published and contains `main.js` and `manifest.json`.
+- Obsidian Community shows `Current release` as `1.0.3` and review status as `Completed`.
+- Manual review request was submitted from the Obsidian Community dashboard.
 
 ## Next actions
 
-1. In the open Obsidian Community tab, connect GitHub from **Plugins -> Connect GitHub**.
-2. Resubmit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync` from **Plugins -> New plugin**.
-3. Review automated feedback and publish a new release if Obsidian reports required fixes.
+1. Monitor the Obsidian Community dashboard and the `Review branch` page for maintainer feedback.
+2. If maintainers ask for changes, patch the issue, bump the version, package, publish a release, and check for new releases on the dashboard.
+3. Consider excluding or splitting the companion Chrome extension source later if repository-wide warnings become a review concern.
