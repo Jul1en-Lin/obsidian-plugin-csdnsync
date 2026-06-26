@@ -4,7 +4,7 @@
 
 Goal: Prepare the plugin for Obsidian community directory submission and attempt the initial listing.
 
-Status: Obsidian listing materials are merged into `master`; local release package generation is verified.
+Status: Obsidian listing materials are merged into `master`; GitHub release `1.0.0` is published.
 
 ## Done
 
@@ -29,10 +29,11 @@ Status: Obsidian listing materials are merged into `master`; local release packa
 - Added `docs/obsidian-store/submission-checklist.md` for the official community directory process.
 - Updated `manifest.json` description and `authorUrl`.
 - Merged `feat/obsidian-store-readiness` into `master` using `--no-ff`.
+- Pushed `master` to GitHub and published release `1.0.0` with `main.js` and `manifest.json`.
 
 ## In progress
 
-- Preparing the GitHub release and community directory submission attempt.
+- Attempting the Obsidian community directory submission.
 
 ## Blocked / Questions
 
@@ -68,9 +69,9 @@ Status: Obsidian listing materials are merged into `master`; local release packa
 - Store readiness checks passed: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
 - Source branch pre-merge checks passed after confirming `origin/master` was already up to date: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
 - Merged `feat/obsidian-store-readiness` into `master` with `--no-ff`; post-merge checks passed: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
+- GitHub release `1.0.0` is published and contains `main.js` and `manifest.json`.
 
 ## Next actions
 
-1. Push `master`.
-2. Create GitHub release `1.0.0` with `main.js` and `manifest.json`.
-3. Submit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync` at `https://community.obsidian.md`.
+1. Commit and push the release status note.
+2. Submit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync` at `https://community.obsidian.md`.
