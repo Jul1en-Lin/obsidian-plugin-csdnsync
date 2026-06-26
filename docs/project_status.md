@@ -2,9 +2,9 @@
 
 ## Current goal
 
-Goal: Design a demo that syncs the current Obsidian note to a CSDN draft through a Chrome extension using the browser's existing CSDN login state.
+Goal: Prepare the plugin for Obsidian community directory submission and attempt the initial listing.
 
-Status: Demo implementation completed; editor-fill mode with local image upload is verified manually and merged into `dev` and `master`.
+Status: Obsidian listing materials are prepared on `feat/obsidian-store-readiness`; release package generation is verified locally.
 
 ## Done
 
@@ -22,14 +22,20 @@ Status: Demo implementation completed; editor-fill mode with local image upload 
 - Rebuilt and copied the plugin artifacts into `/Users/lien/Obsidian-data/☘️/.obsidian/plugins/csdn-sync/`.
 - Changed the demo direction: sync now opens the CSDN Markdown editor and fills title/body. The extension no longer calls CSDN draft-save APIs by default.
 - Removed the unused CSDN draft-save client, signing/header code, and `marked` dependency from the extension.
+- Created `feat/obsidian-store-readiness` from `master` because Chrome Web Store publishing needs a paid registration.
+- Replaced the sample README with plugin-specific usage, setup, privacy, limits, and release documentation.
+- Added `npm run package:obsidian` and a local release packaging script.
+- Removed the unused sample `styles.css` file from release artifacts.
+- Added `docs/obsidian-store/submission-checklist.md` for the official community directory process.
+- Updated `manifest.json` description and `authorUrl`.
 
 ## In progress
 
-- None right now.
+- Preparing a commit for Obsidian community directory readiness.
 
 ## Blocked / Questions
 
-- None right now.
+- Actual Obsidian community submission requires signing in at `https://community.obsidian.md` with an Obsidian account and linking the owning GitHub account.
 
 ## Checkpoints
 
@@ -56,8 +62,13 @@ Status: Demo implementation completed; editor-fill mode with local image upload 
 - Rebuilt and copied updated Obsidian plugin artifacts into `/Users/lien/Obsidian-data/☘️/.obsidian/plugins/csdn-sync/`.
 - User confirmed the CSDN editor now fills notes with uploaded images successfully.
 - Merged `dev` into `master` while keeping `master`'s README content.
+- Official Obsidian submission docs checked on 2026-06-27: root README, LICENSE, and manifest are required; release tag must match `manifest.version`; release assets are `main.js`, `manifest.json`, and optional `styles.css`; community submission happens at `community.obsidian.md`.
+- Obsidian package check passed: `release/csdn-sync-1.0.0.zip` contains `main.js` and `manifest.json`.
+- Store readiness checks passed: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
 
 ## Next actions
 
-1. Push `master` and `dev` only if the user asks for remote publishing.
-2. Continue future feature work from `dev`.
+1. Commit the Obsidian listing materials on `feat/obsidian-store-readiness`.
+2. Push or merge the materials to the default branch before submitting, because Obsidian reads `manifest.json` and `README.md` from the default branch HEAD.
+3. Create GitHub release `1.0.0` with `main.js` and `manifest.json`.
+4. Submit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync` at `https://community.obsidian.md`.

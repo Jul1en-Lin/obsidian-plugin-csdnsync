@@ -3,7 +3,8 @@
 	"name": "CSDN Sync",
 	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "Open the current note in the CSDN editor through a Chrome extension.",
+	"description": "Open the current note in the CSDN Markdown editor and fill it through a local Chrome extension bridge.",
 	"author": "Julien Lin",
+	"authorUrl": "https://github.com/Jul1en-Lin",
 	"isDesktopOnly": true
 }

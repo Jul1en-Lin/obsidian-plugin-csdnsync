@@ -1,92 +1,111 @@
-# Obsidian Sample Plugin
+# CSDN Sync
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+CSDN Sync opens the current Obsidian note in the CSDN Markdown editor and fills the title, Markdown body, and local images.
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+It uses a local bridge:
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
+- The Obsidian plugin reads the active Markdown note and starts a localhost task server.
+- The companion Chrome extension uses your existing CSDN login session in Chrome.
+- The extension opens the CSDN editor and inserts the note content. You still review and save or publish manually.
 
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open modal (simple)" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and outputs a Notice on click.
-- Registers a global interval which logs 'setInterval' to the console.
+## Requirements
 
-## First time developing plugins?
+- Obsidian desktop app.
+- Google Chrome.
+- A signed-in CSDN account in Chrome.
+- The companion Chrome extension from this repository.
 
-Quick starting guide for new plugin devs:
+This plugin is desktop-only because it starts a local HTTP server and depends on a browser extension.
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `src/main.ts` to `main.js`.
-- Make changes to `src/main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+## Install
 
-## Releasing new releases
+### From Obsidian community plugins
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+After the plugin is accepted, install it from **Settings -> Community plugins** by searching for **CSDN Sync**.
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+### Manual install for testing
 
-## Adding your plugin to the community plugin list
+1. Download `main.js` and `manifest.json` from the GitHub release.
+2. If `styles.css` is included in the release, download it too.
+3. Copy the files to `<Vault>/.obsidian/plugins/csdn-sync/`.
+4. Reload Obsidian.
+5. Enable **CSDN Sync** in **Settings -> Community plugins**.
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+## Chrome extension setup
 
-## How to use
+The Chrome extension is currently distributed from this repository.
 
-- Clone this repo.
-- Make sure your NodeJS is at least v18 (`node --version`).
-- `npm i` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+1. Run `cd extension && npm install && npm run build`.
+2. Open `chrome://extensions`.
+3. Enable **Developer mode**.
+4. Select **Load unpacked** and choose `extension/dist`.
+5. Open the extension popup.
+6. Set the Obsidian base URL to `http://127.0.0.1:27187`.
+7. Copy the token from **Obsidian -> Settings -> CSDN Sync** into the extension.
+8. Select **Check connection**.
 
-## Manually installing the plugin
+## Use
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+1. Open a Markdown note in Obsidian.
+2. Run **CSDN Sync: Open current note in CSDN editor** from the command palette, or use the ribbon icon.
+3. Chrome opens the CSDN Markdown editor and fills the note.
+4. Review the content in CSDN.
+5. Save the draft or publish manually.
 
-## Improve code quality with eslint
+## Title rules
 
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code.
-- This project already has eslint preconfigured, you can invoke a check by running`npm run lint`
-- Together with a custom eslint [plugin](https://github.com/obsidianmd/eslint-plugin) for Obsidan specific code guidelines.
-- A GitHub action is preconfigured to automatically lint every commit on all branches.
+The plugin chooses the article title in this order:
 
-## Funding URL
+1. `title` in frontmatter.
+2. The Obsidian file name.
+3. The first H1 heading.
 
-You can include funding URLs where people who use your plugin can financially support it.
+## Image handling
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+Local Obsidian images are uploaded to CSDN image storage before the Markdown is inserted. Remote images are left as Markdown links.
 
-```json
-{
-	"fundingUrl": "https://buymeacoffee.com"
-}
+## Privacy and data
+
+CSDN Sync does not collect analytics and does not send vault data to any service controlled by this project.
+
+When you run the sync command:
+
+- The active note title, Markdown body, and referenced local images are exposed on `127.0.0.1` for the companion Chrome extension.
+- Task endpoints require the token shown in the plugin settings.
+- The Chrome extension sends the note content and images to CSDN only when you explicitly run the command.
+- The local server listens on `127.0.0.1` only.
+
+## Limits
+
+- Only the active Markdown file is supported.
+- The plugin does not publish articles automatically.
+- The plugin does not edit existing CSDN articles.
+- CSDN editor UI changes can break the fill flow.
+
+## Development
+
+```bash
+npm install
+npm run test
+npm run build
+npm run lint
 ```
 
-If you have multiple URLs, you can also do:
+For Chrome extension development:
 
-```json
-{
-	"fundingUrl": {
-		"Buy Me a Coffee": "https://buymeacoffee.com",
-		"GitHub Sponsor": "https://github.com/sponsors",
-		"Patreon": "https://www.patreon.com/"
-	}
-}
+```bash
+cd extension
+npm install
+npm run test
+npm run build
 ```
 
-## API Documentation
+## Release
 
-See https://docs.obsidian.md
+1. Update `manifest.json` and `versions.json`.
+2. Run `npm run package:obsidian`.
+3. Create a GitHub release whose tag exactly matches `manifest.json` `version`.
+4. Upload `main.js` and `manifest.json` as release assets.
+5. Upload `styles.css` only if it is included.
+
+The generated local release folder is written to `release/csdn-sync-<version>/`.
