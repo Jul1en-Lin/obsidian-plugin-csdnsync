@@ -1,12 +1,13 @@
 {
 	"name": "obsidian-csdn-sync",
 	"version": "1.0.0",
-	"description": "Sync the current Obsidian note to a CSDN draft through a Chrome extension.",
+	"description": "Open the current Obsidian note in the CSDN Markdown editor through a local Chrome extension bridge.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
 		"dev": "node esbuild.config.mjs",
 		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"package:obsidian": "npm run build && node scripts/package-obsidian-release.mjs",
 		"version": "node version-bump.mjs && git add manifest.json versions.json",
 		"lint": "eslint .",
 		"test": "vitest run"
