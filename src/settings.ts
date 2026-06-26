@@ -1,18 +1,28 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
-import MyPlugin from './main';
+import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
+import CsdnSyncPlugin from './main';
+import type { CsdnSyncSettings } from './types';
+import { createToken } from './server/token';
 
-export interface MyPluginSettings {
-	mySetting: string;
-}
-
-export const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: 'default',
+export const DEFAULT_SETTINGS: CsdnSyncSettings = {
+	port: 27187,
+	token: '',
+	serverEnabled: true,
 };
 
-export class SampleSettingTab extends PluginSettingTab {
-	plugin: MyPlugin;
+export function normalizeSettings(
+	data: Partial<CsdnSyncSettings> | null | undefined,
+): CsdnSyncSettings {
+	return {
+		...DEFAULT_SETTINGS,
+		...data,
+		token: data?.token || createToken(),
+	};
+}
 
-	constructor(app: App, plugin: MyPlugin) {
+export class CsdnSyncSettingTab extends PluginSettingTab {
+	plugin: CsdnSyncPlugin;
+
+	constructor(app: App, plugin: CsdnSyncPlugin) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}
@@ -23,16 +33,67 @@ export class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName('Settings #1')
-			.setDesc("It's a secret")
+			.setName('Local server')
+			.setDesc('Enable the localhost bridge used by the chrome extension.')
+			.addToggle((toggle) =>
+				toggle
+					.setValue(this.plugin.settings.serverEnabled)
+					.onChange(async (value) => {
+						this.plugin.settings.serverEnabled = value;
+						await this.plugin.saveSettings();
+						await this.plugin.restartLocalServer();
+					}),
+			);
+
+		new Setting(containerEl)
+			.setName('Port')
+			.setDesc('Local server port.')
 			.addText((text) =>
 				text
-					.setPlaceholder('Enter your secret')
-					.setValue(this.plugin.settings.mySetting)
+					.setPlaceholder('27187')
+					.setValue(String(this.plugin.settings.port))
 					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
+						const port = Number(value);
+						if (!Number.isInteger(port) || port < 1 || port > 65535) {
+							return;
+						}
+						this.plugin.settings.port = port;
 						await this.plugin.saveSettings();
+						await this.plugin.restartLocalServer();
 					}),
+			);
+
+		new Setting(containerEl)
+			.setName('Extension token')
+			.setDesc('Copy this token into the chrome extension.')
+			.addText((text) =>
+				{
+					text.setValue(this.plugin.settings.token);
+					text.inputEl.disabled = true;
+					return text;
+				},
+			)
+			.addButton((button) =>
+				button.setButtonText('Copy').onClick(async () => {
+					await navigator.clipboard.writeText(this.plugin.settings.token);
+					new Notice('Extension token copied.');
+				}),
+			)
+			.addButton((button) =>
+				button.setButtonText('Regenerate').onClick(async () => {
+					this.plugin.settings.token = createToken();
+					await this.plugin.saveSettings();
+					this.display();
+				}),
+			);
+
+		new Setting(containerEl)
+			.setName('Sync current note')
+			.setDesc('Open the active Markdown note in the csdn editor.')
+			.addButton((button) =>
+				button.setButtonText('Open editor').onClick(() => {
+					void this.plugin.startSyncCurrentNote();
+				}),
 			);
 	}
 }

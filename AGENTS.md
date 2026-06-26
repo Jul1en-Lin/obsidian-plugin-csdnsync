@@ -267,3 +267,30 @@ this.registerInterval(
 - Developer policies: https://docs.obsidian.md/Developer+policies
 - Plugin guidelines: https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines
 - Style guide: https://help.obsidian.md/style-guide
+
+<!-- BEGIN: setup-long-term-docs -->
+
+## Lightweight agent workflow
+
+This repository uses a small project memory setup for short-lived projects, scripts, demos, and experiments.
+
+### Documentation sources of truth
+
+- `docs/project_status.md`: current goal, progress, blockers, checks, and next actions.
+- `docs/agent_workflow.md`: lightweight status, commit, and handoff workflow.
+
+### Required rules
+
+- Read `docs/project_status.md` before making changes when it exists.
+- Update `docs/project_status.md` when meaningful progress is made, a blocker appears or is resolved, the next action changes, or work should be resumable later.
+- Keep updates short. Do not create extra planning documents unless the user asks.
+- Before any git commit, check whether `docs/project_status.md` should be updated.
+- Commit only files related to the current work. Do not sweep unrelated files into commits.
+- Do not push unless the user explicitly asks or the current task grants push/publish authorization.
+- Summarize changed files, checks run, and remaining risks.
+
+### Detailed workflows
+
+For status, commit, and handoff details, read `docs/agent_workflow.md`.
+
+<!-- END: setup-long-term-docs -->

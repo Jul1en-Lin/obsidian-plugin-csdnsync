@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="popup.css">
+	<title>CSDN Sync</title>
+</head>
+<body>
+	<main>
+		<label>
+			<span>Obsidian URL</span>
+			<input id="obsidianBaseUrl" type="text" spellcheck="false">
+		</label>
+		<label>
+			<span>Token</span>
+			<input id="token" type="password" spellcheck="false">
+		</label>
+		<div class="actions">
+			<button id="save">Save</button>
+			<button id="check">Check connection</button>
+		</div>
+		<p id="status"></p>
+	</main>
+	<script type="module" src="popup.js"></script>
+</body>
+</html>
