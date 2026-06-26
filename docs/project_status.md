@@ -4,7 +4,7 @@
 
 Goal: Prepare the plugin for Obsidian community directory submission and attempt the initial listing.
 
-Status: Obsidian listing materials are prepared on `feat/obsidian-store-readiness`; release package generation is verified locally.
+Status: Obsidian listing materials are merged into `master`; local release package generation is verified.
 
 ## Done
 
@@ -28,10 +28,11 @@ Status: Obsidian listing materials are prepared on `feat/obsidian-store-readines
 - Removed the unused sample `styles.css` file from release artifacts.
 - Added `docs/obsidian-store/submission-checklist.md` for the official community directory process.
 - Updated `manifest.json` description and `authorUrl`.
+- Merged `feat/obsidian-store-readiness` into `master` using `--no-ff`.
 
 ## In progress
 
-- Preparing a commit for Obsidian community directory readiness.
+- Preparing the GitHub release and community directory submission attempt.
 
 ## Blocked / Questions
 
@@ -65,10 +66,11 @@ Status: Obsidian listing materials are prepared on `feat/obsidian-store-readines
 - Official Obsidian submission docs checked on 2026-06-27: root README, LICENSE, and manifest are required; release tag must match `manifest.version`; release assets are `main.js`, `manifest.json`, and optional `styles.css`; community submission happens at `community.obsidian.md`.
 - Obsidian package check passed: `release/csdn-sync-1.0.0.zip` contains `main.js` and `manifest.json`.
 - Store readiness checks passed: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
+- Source branch pre-merge checks passed after confirming `origin/master` was already up to date: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
+- Merged `feat/obsidian-store-readiness` into `master` with `--no-ff`; post-merge checks passed: `npm test`, `npm run package:obsidian`, `npm run lint`, `git diff --check`.
 
 ## Next actions
 
-1. Commit the Obsidian listing materials on `feat/obsidian-store-readiness`.
-2. Push or merge the materials to the default branch before submitting, because Obsidian reads `manifest.json` and `README.md` from the default branch HEAD.
-3. Create GitHub release `1.0.0` with `main.js` and `manifest.json`.
-4. Submit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync` at `https://community.obsidian.md`.
+1. Push `master`.
+2. Create GitHub release `1.0.0` with `main.js` and `manifest.json`.
+3. Submit `https://github.com/Jul1en-Lin/obsidian-plugin-csdnsync` at `https://community.obsidian.md`.
