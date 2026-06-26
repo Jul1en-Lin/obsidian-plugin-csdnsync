@@ -4,14 +4,20 @@ if (window.location.pathname === '/trigger' && taskId) {
 	setStatus('Sending task to CSDN Sync extension...');
 	chrome.runtime.sendMessage(
 		{ type: 'START_CSDN_SYNC', taskId },
-		(response?: { ok?: boolean; postUrl?: string; error?: string }) => {
+		(response?: {
+			ok?: boolean;
+			postUrl?: string;
+			windowName?: string;
+			error?: string;
+		}) => {
 			if (chrome.runtime.lastError) {
 				setStatus(chrome.runtime.lastError.message || 'Extension request failed.');
 				return;
 			}
 
 			if (response?.ok && response.postUrl) {
-				setStatus(`Draft saved. Opening ${response.postUrl}`);
+				window.name = response.windowName || `csdn-sync:${taskId}`;
+				setStatus(`Opening CSDN editor: ${response.postUrl}`);
 				window.location.assign(response.postUrl);
 				return;
 			}

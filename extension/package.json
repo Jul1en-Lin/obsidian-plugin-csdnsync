@@ -1,15 +1,13 @@
 {
 	"name": "csdn-sync-extension",
-	"version": "0.1.0",
+	"version": "0.1.2",
 	"private": true,
 	"type": "module",
 	"scripts": {
 		"build": "vite build && node scripts/copy-static.mjs",
 		"test": "vitest run"
 	},
-	"dependencies": {
-		"marked": "^16.4.1"
-	},
+	"dependencies": {},
 	"devDependencies": {
 		"@types/chrome": "^0.1.4",
 		"@types/node": "^22.15.17",

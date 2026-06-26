@@ -11,12 +11,16 @@ export interface SyncTask extends SyncTaskInput {
 	result?: SyncTaskResult;
 }
 
-export type SyncTaskStatus = 'pending' | 'success' | 'error';
+export type SyncTaskStatus = 'pending' | 'success' | 'manual-fill' | 'error';
 
 export type SyncTaskResult =
 	| {
 			status: 'success';
 			postId?: string;
+			postUrl: string;
+	  }
+	| {
+			status: 'manual-fill';
 			postUrl: string;
 	  }
 	| {

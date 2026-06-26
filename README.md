@@ -1,6 +1,6 @@
 # CSDN Sync
 
-Demo Obsidian plugin + Chrome extension for saving the current Obsidian note as a CSDN draft.
+Demo Obsidian plugin + Chrome extension for opening the CSDN Markdown editor and filling it with the current Obsidian note.
 
 ## How it works
 
@@ -8,8 +8,9 @@ Demo Obsidian plugin + Chrome extension for saving the current Obsidian note as 
 2. Obsidian exposes a localhost task API on `127.0.0.1`.
 3. Obsidian opens a local trigger page.
 4. The Chrome extension content script sees the trigger page and starts the extension background task.
-5. The extension uses Chrome's existing CSDN login cookies to call CSDN editor APIs.
-6. The extension saves a draft and sends the draft link back to Obsidian.
+5. The extension opens the CSDN Markdown editor in the same Chrome profile.
+6. A CSDN editor content script fills the title and Markdown body.
+7. The user manually saves the draft or publishes from CSDN.
 
 This demo does not store CSDN cookies or ask for a CSDN password. It only sends the current note content from Obsidian to the local Chrome extension.
 
@@ -51,16 +52,17 @@ In the extension popup:
 
 1. Log in to CSDN in Chrome.
 2. Open a Markdown note in Obsidian.
-3. Select the left ribbon upload icon, select **Sync** in plugin settings, or run **Sync current note to draft** from the command palette.
+3. Select the left ribbon upload icon, select **Open editor** in plugin settings, or run **Open current note in csdn editor** from the command palette.
 4. A local trigger page opens in Chrome.
-5. Obsidian shows the CSDN draft link when saving finishes.
+5. Chrome opens the CSDN Markdown editor and fills the title and body.
+6. Review the content in CSDN, then select **保存草稿** or **发布文章** manually.
 
 If your default browser is not Chrome, copy the trigger page URL into the Chrome profile where the extension is installed.
 
 ## Current limits
 
 - Only the current active Markdown note is synced.
-- Each sync creates a new CSDN draft.
+- The extension does not auto-save. CSDN draft creation happens only when the user selects **保存草稿**.
 - Local images are not uploaded to CSDN yet.
 - Tags, categories, cover images, and publishing are not included.
 - Desktop Obsidian only.

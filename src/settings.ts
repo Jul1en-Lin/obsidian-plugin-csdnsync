@@ -89,9 +89,9 @@ export class CsdnSyncSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Sync current note')
-			.setDesc('Create a draft sync task for the active Markdown note.')
+			.setDesc('Open the active Markdown note in the csdn editor.')
 			.addButton((button) =>
-				button.setButtonText('Sync').onClick(() => {
+				button.setButtonText('Open editor').onClick(() => {
 					void this.plugin.startSyncCurrentNote();
 				}),
 			);

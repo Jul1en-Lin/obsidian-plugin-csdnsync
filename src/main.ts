@@ -18,7 +18,7 @@ export default class CsdnSyncPlugin extends Plugin {
 		await this.loadSettings();
 		this.taskStore = createTaskStore();
 
-		this.addRibbonIcon('upload-cloud', 'Sync current note to csdn draft', () => {
+		this.addRibbonIcon('upload-cloud', 'Open current note in csdn editor', () => {
 			void this.startSyncCurrentNote();
 		});
 		registerCommands(this);
@@ -79,7 +79,7 @@ export default class CsdnSyncPlugin extends Plugin {
 			const task = await this.createSyncTask();
 			const url = this.getTriggerUrl(task.id);
 			window.open(url, '_blank');
-			new Notice('Draft sync task created. Continue in chrome.');
+			new Notice('Opening csdn editor in chrome.');
 		} catch (error) {
 			new Notice(error instanceof Error ? error.message : String(error));
 		}
@@ -94,6 +94,11 @@ export default class CsdnSyncPlugin extends Plugin {
 	private showResult(result: SyncTaskResult): void {
 		if (result.status === 'success') {
 			new Notice(`CSDN draft saved: ${result.postUrl}`, 10000);
+			return;
+		}
+
+		if (result.status === 'manual-fill') {
+			new Notice('Csdn editor filled. Save the draft manually.', 10000);
 			return;
 		}
 

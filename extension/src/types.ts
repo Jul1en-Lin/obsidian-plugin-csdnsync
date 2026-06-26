@@ -13,6 +13,10 @@ export type SyncTaskResult =
 			postUrl: string;
 	  }
 	| {
+			status: 'manual-fill';
+			postUrl: string;
+	  }
+	| {
 			status: 'error';
 			error: string;
 	  };

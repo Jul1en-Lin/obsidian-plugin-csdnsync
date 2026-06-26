@@ -4,7 +4,7 @@ import type CsdnSyncPlugin from '../main';
 export function registerCommands(plugin: CsdnSyncPlugin): void {
 	plugin.addCommand({
 		id: 'sync-current-note-to-csdn-draft',
-		name: 'Sync current note to draft',
+		name: 'Open current note in csdn editor',
 		callback: () => {
 			void plugin.startSyncCurrentNote();
 		},

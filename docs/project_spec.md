@@ -1,20 +1,21 @@
-# Project Spec: Obsidian to CSDN Draft Demo
+# Project Spec: Obsidian to CSDN Editor Fill Demo
 
 ## Objective
 
-开发一个 demo：用户在 Obsidian 里执行命令后，当前笔记会通过本机 HTTP 服务交给 Chrome 扩展。扩展使用 Chrome 中已有的 CSDN 登录态保存草稿，并把草稿链接回传给 Obsidian。
+开发一个 demo：用户在 Obsidian 里执行命令后，当前笔记会通过本机 HTTP 服务交给 Chrome 扩展。扩展使用 Chrome 中已有的 CSDN 登录态打开 CSDN Markdown 编辑器，并把标题和正文填入页面。用户在 CSDN 页面手动保存草稿或发布。
 
 ## Product behavior
 
 1. 用户在 Chrome 中登录 CSDN。
 2. 用户安装并启用 Chrome 扩展，配置 Obsidian 本机服务地址和 token。
 3. 用户在 Obsidian 打开一篇 Markdown 笔记。
-4. 用户执行命令 **Sync current note to CSDN draft**。
+4. 用户执行命令 **Open current note in csdn editor**。
 5. Obsidian 插件创建同步任务，并打开本机 trigger 页面。
 6. Chrome 扩展 content script 识别 trigger 页面，通知扩展后台。
-7. Chrome 扩展后台读取任务，检查 CSDN 登录态。
-8. 扩展保存 CSDN 草稿。
-9. Obsidian 收到结果后显示草稿链接。
+7. Chrome 扩展后台读取任务，暂存待填充内容，并返回 CSDN 编辑器 URL。
+8. trigger 页面跳转到 CSDN Markdown 编辑器。
+9. CSDN 编辑器 content script 填充标题和 Markdown 正文。
+10. Obsidian 收到 `manual-fill` 结果后提示用户在 CSDN 页面手动保存。
 
 ## Architecture
 
@@ -28,15 +29,14 @@ Obsidian plugin
 Chrome extension
   - trigger content script
   - task loader
-  - CSDN auth checker
-  - markdown to HTML converter
-  - CSDN draft client
+  - pending editor task store
+  - CSDN editor fill content script
   - result reporter
 
-CSDN Web editor API
+CSDN Web editor
   - existing browser cookies
-  - signed requests
-  - draft save endpoint
+  - Markdown editor page
+  - user-controlled save/publish actions
 ```
 
 ## Repository layout
@@ -61,15 +61,13 @@ extension/
   package.json
   src/
     background.ts
+    editor-fill-content.ts
+    editor-task-store.ts
     trigger-content.ts
     settings.ts
     obsidian-api.ts
-    markdown.ts
     csdn/
-      client.ts
-      sign.ts
-      payload.ts
-      headers.ts
+      editor-url.ts
     popup/
       index.html
       popup.ts
@@ -158,9 +156,8 @@ Request:
 
 ```json
 {
-  "status": "success",
-  "postId": "123",
-  "postUrl": "https://editor.csdn.net/md?articleId=123"
+  "status": "manual-fill",
+  "postUrl": "https://editor.csdn.net/md/?csdnSyncTaskId=sync_..."
 }
 ```
 
@@ -180,18 +177,16 @@ or:
 Required:
 
 - `storage`
-- `declarativeNetRequest`
-- `declarativeNetRequestWithHostAccess`
 
 Host permissions:
 
 - `http://127.0.0.1/*`
-- `https://bizapi.csdn.net/*`
 - `https://editor.csdn.net/*`
 
 Content script match:
 
 - `http://127.0.0.1/*`
+- `https://editor.csdn.net/md*`
 
 ### Settings
 
@@ -212,93 +207,24 @@ Defaults:
 2. Obsidian opens `/trigger?taskId=<id>`.
 3. Extension content script sends `{ type: "START_CSDN_SYNC", taskId }` to background.
 4. Extension background calls `GET /tasks/:id`.
-5. Extension calls CSDN auth check.
-6. Extension converts Markdown to HTML.
-7. Extension saves CSDN draft.
-8. Extension posts the result to Obsidian.
+5. Extension background stores the task in Chrome local storage under a pending editor task key.
+6. Extension background posts `{ status: "manual-fill", postUrl }` to Obsidian.
+7. Trigger page navigates to the CSDN editor URL with `csdnSyncTaskId`.
+8. CSDN editor content script loads the pending task, fills title and Markdown body, clears the pending task, and shows an in-page notice.
 
 Popup can also expose a manual **Check connection** action for setup/debug.
 
-## CSDN client
+## CSDN editor fill
 
-### Auth check
+The extension must not call CSDN draft-save APIs in the default flow.
 
-Call:
+Editor fill behavior:
 
-```text
-GET /blog-console-api/v3/editor/getBaseInfo
-```
-
-Full URL:
-
-```text
-https://bizapi.csdn.net/blog-console-api/v3/editor/getBaseInfo
-```
-
-If response has `code: 200` and user info, treat as logged in.
-
-### Draft save
-
-Call:
-
-```text
-POST /blog-console-api/v3/mdeditor/saveArticle
-```
-
-Full URL:
-
-```text
-https://bizapi.csdn.net/blog-console-api/v3/mdeditor/saveArticle
-```
-
-Payload includes:
-
-```json
-{
-  "title": "Title",
-  "markdowncontent": "...",
-  "content": "<h1>...</h1>",
-  "readType": "public",
-  "level": 0,
-  "tags": "",
-  "status": 2,
-  "categories": "",
-  "type": "original",
-  "original_link": "",
-  "authorized_status": false,
-  "not_auto_saved": "1",
-  "source": "pc_mdeditor",
-  "cover_images": [],
-  "cover_type": 1,
-  "is_new": 1,
-  "vote_id": 0,
-  "resource_id": "",
-  "pubStatus": "draft",
-  "creator_activity_id": ""
-}
-```
-
-### Signing
-
-Use the public Wechatsync CSDN adapter as the reference for:
-
-- nonce generation
-- HMAC-SHA256 signing
-- signed headers
-- method/path based signing string
-
-Keep signing code in `extension/src/csdn/sign.ts` so CSDN changes do not leak into the rest of the extension.
-
-### Header rules
-
-For `https://bizapi.csdn.net/*`, set:
-
-```http
-Origin: https://editor.csdn.net
-Referer: https://editor.csdn.net/
-```
-
-Use `chrome.declarativeNetRequest.updateDynamicRules`. Clear temporary rules after the request batch finishes.
+- Open `https://editor.csdn.net/md/?csdnSyncTaskId=<taskId>`.
+- Fill title from the Obsidian task title.
+- Fill Markdown body from the Obsidian task Markdown.
+- Show an in-page notice telling the user to select **保存草稿** or **发布文章** manually.
+- Clear pending task content from Chrome local storage after a successful fill.
 
 ## Error handling
 
@@ -313,9 +239,8 @@ Use `chrome.declarativeNetRequest.updateDynamicRules`. Clear temporary rules aft
 
 - Cannot reach Obsidian: show trigger page or popup status.
 - Token rejected: show setup error in popup.
-- CSDN not logged in: post error to Obsidian.
-- CSDN API failure: include CSDN message when available.
-- Markdown to HTML conversion failure: use a basic escaped paragraph fallback.
+- CSDN not logged in: CSDN editor page handles login; the extension should show a visible fill failure if editor controls never appear.
+- CSDN editor DOM changed: show a visible fill failure in the editor page.
 
 ## Testing plan
 
@@ -324,8 +249,8 @@ Use `chrome.declarativeNetRequest.updateDynamicRules`. Clear temporary rules aft
 - Title extraction from frontmatter, H1, and filename.
 - Token validation for HTTP API.
 - Task queue state changes.
-- CSDN payload mapping.
-- Signing function with a fixed nonce and known expected output.
+- CSDN editor URL task id round trip.
+- Pending editor task store behavior.
 
 ### Manual demo check
 
@@ -334,10 +259,11 @@ Use `chrome.declarativeNetRequest.updateDynamicRules`. Clear temporary rules aft
 3. Configure token and base URL.
 4. Log in to CSDN in Chrome.
 5. Open a Markdown note in Obsidian.
-6. Run **Sync current note to CSDN draft**.
+6. Run **Open current note in csdn editor**.
 7. Confirm a local trigger page opens in Chrome.
-8. Confirm Obsidian shows a CSDN draft link.
-9. Open the link and confirm title/body are present.
+8. Confirm Chrome opens the CSDN Markdown editor.
+9. Confirm title/body are filled.
+10. Select **保存草稿** manually and confirm CSDN creates the draft.
 
 ## First implementation pass
 
@@ -350,7 +276,7 @@ Use `chrome.declarativeNetRequest.updateDynamicRules`. Clear temporary rules aft
 7. Add extension settings/popup.
 8. Add trigger content script.
 9. Add Obsidian task client in extension.
-10. Add CSDN auth and draft save client.
+10. Add CSDN editor fill content script.
 11. Add result callback to Obsidian.
 12. Run build/lint and manual demo check.
 
@@ -358,7 +284,7 @@ Use `chrome.declarativeNetRequest.updateDynamicRules`. Clear temporary rules aft
 
 - CSDN image upload.
 - Frontmatter to tags/categories mapping.
-- Draft update instead of always creating a new draft.
+- Optional API-based draft save behind explicit user opt-in.
 - Better task history in Obsidian.
 - One-click extension setup from Obsidian.
 - Better popup progress UI.

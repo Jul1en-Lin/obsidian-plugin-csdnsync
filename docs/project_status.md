@@ -4,7 +4,7 @@
 
 Goal: Design a demo that syncs the current Obsidian note to a CSDN draft through a Chrome extension using the browser's existing CSDN login state.
 
-Status: Demo implementation completed; post-demo bugfix copied into the test vault.
+Status: Demo implementation completed; editor-fill mode built and copied into the test vault.
 
 ## Done
 
@@ -20,10 +20,12 @@ Status: Demo implementation completed; post-demo bugfix copied into the test vau
 - Updated README with setup and demo instructions.
 - Fixed title selection so Obsidian filename is used before the first H1 heading, avoiding CSDN draft-save failures when the first H1 is too short.
 - Rebuilt and copied the plugin artifacts into `/Users/lien/Obsidian-data/☘️/.obsidian/plugins/csdn-sync/`.
+- Changed the demo direction: sync now opens the CSDN Markdown editor and fills title/body. The extension no longer calls CSDN draft-save APIs by default.
+- Removed the unused CSDN draft-save client, signing/header code, and `marked` dependency from the extension.
 
 ## In progress
 
-- Manual re-test in Obsidian after reloading the CSDN Sync plugin.
+- Manual verification after reloading the Obsidian plugin and Chrome unpacked extension.
 
 ## Blocked / Questions
 
@@ -36,9 +38,19 @@ Status: Demo implementation completed; post-demo bugfix copied into the test vau
 - Selected communication model: Obsidian local HTTP service plus a Chrome extension trigger page/content script.
 - Latest completed checks: root tests, root build, root lint, extension tests, extension build.
 - Post-bugfix checks: `npm test`, `npm run build`, `npm run lint`.
+- Editor-fill mode checks: `npm test`, `npm run build`, `npm run lint`, `cd extension && npm test`, `cd extension && npm run build`.
+- Copied updated Obsidian plugin artifacts into `/Users/lien/Obsidian-data/☘️/.obsidian/plugins/csdn-sync/`.
+- User hit a stale Chrome service worker error from the removed draft-save flow: `Cannot read properties of undefined (reading 'updateDynamicRules')`.
+- Bumped the Chrome extension to `0.1.1` and rebuilt `extension/dist`; current dist contains no `updateDynamicRules`, `saveArticle`, or `bizapi` references.
+- User then reached the CSDN editor but content was not filled. Chrome logs showed `SyntaxError: Cannot use import statement outside a module` from `editor-fill-content.js`.
+- Fixed the editor content script by removing its runtime import so it builds as a plain content script.
+- User then confirmed fill works, but Markdown paragraphs were collapsed. The Obsidian task body preserved blank lines, so the issue was CSDN handling `execCommand('insertText')` as a single editor section.
+- Updated editor fill to dispatch a `paste` event with `text/plain` Markdown first, falling back to `insertText` only if CSDN does not handle paste.
+- User found that syncing multiple notes close together could reuse the same CSDN editor state: the second note appended to the first note's body and overwrote the title.
+- Added a per-task CSDN editor window handle and clear-before-fill behavior so each trigger/editor tab resolves its own task and removes any previous unsaved editor content before inserting Markdown.
 
 ## Next actions
 
-1. Reload the CSDN Sync plugin in Obsidian.
-2. Run sync again from the `Java 脚手架` note.
-3. Confirm CSDN opens the generated draft link.
+1. Reload the Chrome unpacked extension from `extension/dist` and confirm version `0.1.2`.
+2. Run sync from two different Obsidian windows.
+3. Confirm each CSDN editor tab gets only its own title/body and still does not auto-save.

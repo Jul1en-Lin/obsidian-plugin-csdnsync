@@ -3,7 +3,7 @@
 	"name": "CSDN Sync",
 	"version": "1.0.0",
 	"minAppVersion": "1.0.0",
-	"description": "Sync the current note to a CSDN draft through a Chrome extension.",
+	"description": "Open the current note in the CSDN editor through a Chrome extension.",
 	"author": "Julien Lin",
 	"isDesktopOnly": true
 }
