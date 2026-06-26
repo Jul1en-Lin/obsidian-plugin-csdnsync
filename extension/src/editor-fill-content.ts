@@ -5,7 +5,6 @@ import { uploadCsdnImage } from './csdn/image-upload';
 
 const TASK_QUERY_PARAM = 'csdnSyncTaskId';
 const WINDOW_NAME_PREFIX = 'csdn-sync:';
-const STYLE_ELEMENT_ID = 'csdn-sync-editor-fill-style';
 const TITLE_INPUT_VISIBLE_CLASS = 'csdn-sync-title-input-visible';
 const BANNER_CLASS = 'csdn-sync-banner';
 const taskId = readEditorTaskId(window.location.href, window.name);
@@ -62,7 +61,6 @@ function fillTitle(title: string): void {
 	titleDisplay?.click();
 
 	if (titleInput) {
-		ensureCsdnSyncStyles();
 		titleInput.removeAttribute('aria-hidden');
 		titleInput.classList.add(TITLE_INPUT_VISIBLE_CLASS);
 		titleInput.focus();
@@ -217,52 +215,11 @@ function createSuccessMessage(imageResult: {
 }
 
 function showBanner(message: string, type: 'success' | 'error'): void {
-	ensureCsdnSyncStyles();
 	const banner = document.createElement('div');
 	banner.textContent = message;
 	banner.className = `${BANNER_CLASS} ${BANNER_CLASS}--${type}`;
 	document.body.appendChild(banner);
 	window.setTimeout(() => banner.remove(), 8000);
-}
-
-function ensureCsdnSyncStyles(): void {
-	if (document.getElementById(STYLE_ELEMENT_ID)) {
-		return;
-	}
-
-	const styleElement = document.createElement('style');
-	styleElement.id = STYLE_ELEMENT_ID;
-	styleElement.textContent = `
-.${TITLE_INPUT_VISIBLE_CLASS} {
-	display: inline-block !important;
-}
-
-.${BANNER_CLASS} {
-	position: fixed;
-	top: 72px;
-	right: 24px;
-	z-index: 2147483647;
-	max-width: 360px;
-	padding: 10px 12px;
-	border-radius: 6px;
-	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
-	font-size: 13px;
-	line-height: 1.4;
-}
-
-.${BANNER_CLASS}--success {
-	color: #14532d;
-	background: #dcfce7;
-	border: 1px solid #86efac;
-}
-
-.${BANNER_CLASS}--error {
-	color: #7f1d1d;
-	background: #fee2e2;
-	border: 1px solid #fecaca;
-}
-`;
-	document.documentElement.appendChild(styleElement);
 }
 
 function sendRuntimeMessage<TResponse>(

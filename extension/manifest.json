@@ -23,6 +23,7 @@
 		{
 			"matches": ["https://editor.csdn.net/md*"],
 			"js": ["editor-fill-content.js"],
+			"css": ["editor-fill-content.css"],
 			"run_at": "document_idle"
 		}
 	],
